@@ -1,0 +1,33 @@
+version: "3"
+
+# https://github.com/pi-hole/docker-pi-hole/blob/master/README.md
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "1234:80/tcp"
+    environment:
+      TZ: ${TZ}
+      FTLCONF_LOCAL_IPV4: ${LOCAL_IP}
+    # Volumes store your data between container upgrades
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+        - "traefik.http.routers.pihole.rule=Host(`pi.hole`)"
+        - "traefik.http.services.pihole.loadbalancer.server.port=80"
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik"
+
+networks:
+    traefik:
+       external: true

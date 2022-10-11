@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: always
+    volumes:
+      - ./vw-data:/data
+    networks:
+      - traefik
+    labels:
+        - "traefik.http.routers.vaultwarden.rule=Host(`pass.shorty.systems`)"
+        - "traefik.http.routers.vaultwarden.tls=true"
+        - "traefik.http.routers.vaultwarden.tls.certresolver=default"
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik"
+networks:
+    traefik:
+       external: true
+        

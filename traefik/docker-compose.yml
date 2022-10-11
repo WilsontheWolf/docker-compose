@@ -1,0 +1,45 @@
+
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik:v2.8
+    container_name: traefik
+    command: --configFile=/config/traefik.yml
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config:/config
+    restart: always
+    labels:
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.shorty.systems`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=default"
+      - "traefik.http.middlewares.auth.basicauth.users=${auth}"
+      - "traefik.enable=true"
+    networks:
+      - default
+      - traefik_proxy
+    depends_on:
+      - "traefik-proxy"
+
+
+
+  traefik-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: traefik-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+    networks:
+      - traefik_proxy
+
+networks:
+    default:
+        name: traefik        
+    traefik_proxy:

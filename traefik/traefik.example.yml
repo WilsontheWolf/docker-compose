@@ -1,0 +1,39 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+
+  websecure:
+    address: :443
+
+log:
+  level: ERROR
+
+accessLog: true
+
+api:
+  dashboard: true
+
+providers:
+  docker:
+    endpoint: tcp://traefik-proxy:2375
+    exposedByDefault: false
+
+  file:
+    directory: /config/file-providers
+
+certificatesResolvers:
+  default:
+    acme:
+      email: REPLACE_ME
+      storage: /config/acme.json
+      httpChallenge:
+        entryPoint: web 
