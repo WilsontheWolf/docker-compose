@@ -1,0 +1,8 @@
+# This funky pattern is required idk why
+!/www/
+/www/*
+!/www/default/
+
+!config
+config/*
+!/config/00-default.conf
