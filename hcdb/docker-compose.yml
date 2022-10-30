@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  bot:
+    image: ghcr.io/wilsonthewolf/halloween-candy-db:latest
+    container_name: hcdb
+    volumes:
+      - ./data:/app/data
+    restart: on-failure:5
+    stop_grace_period: 10s
+    ports:
+      - 3000:3000
+    networks:
+      - traefik
+    labels:
+        - "traefik.http.routers.hcdb.rule=Host(`hcdb.shorty.systems`)"
+        - "traefik.http.routers.hcdb.tls=true"
+        - "traefik.http.routers.hcdb.tls.certresolver=default"
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik"
+
+networks:
+    traefik:
+       external: true
+
