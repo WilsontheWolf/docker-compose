@@ -17,7 +17,9 @@ entryPoints:
 log:
   level: ERROR
 
-accessLog: true
+accessLog:
+  filePath: "/config/access.log"
+  format: json
 
 api:
   dashboard: true
@@ -37,3 +39,9 @@ certificatesResolvers:
       storage: /config/acme.json
       httpChallenge:
         entryPoint: web 
+  dns:
+    acme:
+      email: REPLACE_ME
+      storage: /config/acme.json
+      dnsChallenge:
+        provider: cloudflare
