@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  george:
+    image: ghcr.io/wilsonthewolf/george:latest
+    container_name: george
+    volumes:
+      - ./data:/app/data
+    restart: on-failure:5
+    stop_grace_period: 10s
+    networks:
+      - traefik
+    labels:
+        - "traefik.http.routers.george.rule=Host(`go.shorty.systems`) || Host(`george.shorty.systems`)"
+        - "traefik.http.routers.george.tls=true"
+        - "traefik.http.routers.george.tls.certresolver=default"
+        - "traefik.http.routers.george.tls.domains[0].main=go.shorty.systems"
+        - "traefik.http.routers.george.tls.domains[0].sans=george.shorty.systems"
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik"
+
+networks:
+    traefik:
+       external: true
+

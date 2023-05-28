@@ -1,0 +1,23 @@
+version: "3.5"
+
+services:
+  applicaiton-server:
+    image: ghcr.io/wilsonthewolf/activity-server:latest
+    container_name: activity-server
+    volumes:
+      - ./data:/app/data
+    restart: on-failure:5
+    stop_grace_period: 10s
+    env_file: .env
+    networks:
+      - traefik
+    labels:
+        - "traefik.http.routers.applicaiton-server.rule=Host(`activity.shorty.systems`)"
+        - "traefik.http.routers.applicaiton-server.tls=true"
+        - "traefik.http.routers.applicaiton-server.tls.certresolver=default"
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik"
+
+networks:
+    traefik:
+       external: true

@@ -1,0 +1,84 @@
+version: "3"        
+                    
+services:
+    pipedfrontend:
+        image: 1337kavin/piped-frontend:latest
+        restart: unless-stopped
+        depends_on:
+            - piped
+        container_name: piped-frontend
+        entrypoint: ash -c 'sed -i s/pipedapi.kavin.rocks/api.piped.shorty.systems/g /usr/share/nginx/html/assets/* && /docker-entrypoint.sh && nginx -g "daemon off;"'
+        networks:
+          - traefik
+        labels:
+            - "traefik.http.routers.piped.rule=Host(`piped.shorty.systems`)"
+            - "traefik.http.routers.piped.tls=true"
+            - "traefik.http.routers.piped.tls.certresolver=default"
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik"
+
+    piped-proxy:
+        image: 1337kavin/piped-proxy:latest
+        restart: unless-stopped
+        environment:
+            - UDS=1
+        volumes:
+            - piped-proxy:/app/socket
+        container_name: piped-proxy
+
+    proxy-expose:
+        container_name: piped-proxy-expose
+        image: piped-proxy-expose
+        restart: unless-stopped
+        depends_on:
+          - piped-proxy
+        networks:
+          - traefik   
+        volumes:
+            - piped-proxy:/app/socket
+        labels:
+            - "traefik.http.routers.pipedproxy.rule=Host(`proxy.piped.shorty.systems`)"
+            - "traefik.http.routers.pipedproxy.tls=true"
+            - "traefik.http.routers.pipedproxy.tls.certresolver=default"
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik"
+            - "com.centurylinklabs.watchtower.enable=false"
+        
+    piped:
+        image: 1337kavin/piped:latest
+        restart: unless-stopped 
+        volumes:
+            - ./config/config.properties:/app/config.properties:ro
+        depends_on:
+            - postgres
+        container_name: piped-backend
+        networks:
+          - traefik
+          - postgres
+        labels:
+            - "traefik.http.routers.pipedapi.rule=Host(`api.piped.shorty.systems`)"
+            - "traefik.http.routers.pipedapi.tls=true"
+            - "traefik.http.routers.pipedapi.tls.certresolver=default"
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik"
+
+    postgres:
+        image: postgres:15
+        restart: unless-stopped
+        volumes:
+            - ./data/db:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_DB=piped
+            - POSTGRES_USER=piped
+            - POSTGRES_PASSWORD=itsasecret
+        container_name: postgres
+        networks:
+          - postgres
+
+volumes:
+    piped-proxy: null
+
+networks:
+  traefik:
+    external: true
+  postgres:
