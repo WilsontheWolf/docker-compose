@@ -9,7 +9,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./backups:/app/backups
-    restart: on-failure:5
+    restart: unless-stopped
     stop_grace_period: 10s
     networks:
       - traefik

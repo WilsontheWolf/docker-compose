@@ -29,6 +29,7 @@ services:
         - "traefik.docker.network=traefik"
         - "traefik.http.routers.pihole.tls=true"
         - "traefik.http.routers.pihole.tls.certresolver=default"
+        - "traefik.http.routers.pihole.tls.domains[0].main=pihole.shorty.systems"
 
 networks:
     traefik:
